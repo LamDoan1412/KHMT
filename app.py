@@ -190,3 +190,67 @@ if st.button("TÍNH TOÁN", type="primary"):
         st.error(
             "🔴 Bữa ăn khá cao calo, nên cân nhắc điều chỉnh khẩu phần."
         )
+
+# ===============================
+# TƯ VẤN DINH DƯỠNG CÁ NHÂN
+# ===============================
+st.divider()
+st.subheader("💡 Tư vấn dinh dưỡng cá nhân")
+
+# calories còn lại
+remaining = bmr - total_calories
+
+# lời khuyên theo giới tính + tuổi
+if gender == "Nam":
+    if age < 18:
+        age_advice = "Nam dưới 18 tuổi đang trong giai đoạn phát triển nên cần bổ sung đủ đạm, canxi và năng lượng."
+    elif age <= 30:
+        age_advice = "Nam từ 18–30 tuổi thường có nhu cầu năng lượng khá cao, nên duy trì chế độ ăn cân bằng và vận động thường xuyên."
+    elif age <= 50:
+        age_advice = "Nam trưởng thành nên cân đối giữa lượng calories nạp vào và vận động để giữ thể trạng ổn định."
+    else:
+        age_advice = "Nam trên 50 tuổi nên ưu tiên thực phẩm dễ tiêu, ít dầu mỡ và kiểm soát năng lượng nạp vào."
+
+else:
+    if age < 18:
+        age_advice = "Nữ dưới 18 tuổi cần bổ sung đầy đủ dinh dưỡng để hỗ trợ phát triển thể chất."
+    elif age <= 30:
+        age_advice = "Nữ từ 18–30 tuổi nên duy trì chế độ ăn đủ chất, giàu sắt, protein và rau xanh."
+    elif age <= 50:
+        age_advice = "Nữ trưởng thành nên cân bằng dinh dưỡng và duy trì lượng calories phù hợp mỗi ngày."
+    else:
+        age_advice = "Nữ trên 50 tuổi nên ưu tiên thực phẩm ít chất béo, giàu chất xơ và canxi."
+
+st.write(age_advice)
+
+# BMI
+if bmi < 18.5:
+    st.info(
+        "📌 BMI của bạn đang ở mức thiếu cân. Bạn có thể tăng khẩu phần ăn, bổ sung thêm protein, sữa, trứng hoặc các loại hạt."
+    )
+
+elif bmi < 25:
+    st.success(
+        "📌 BMI của bạn ở mức bình thường. Hãy tiếp tục duy trì chế độ ăn uống hiện tại."
+    )
+
+elif bmi < 30:
+    st.warning(
+        "📌 BMI của bạn đang ở mức thừa cân. Nên hạn chế đồ ngọt, thức ăn nhanh và tăng rau xanh."
+    )
+
+else:
+    st.error(
+        "📌 BMI đang ở mức cao. Bạn nên kiểm soát lượng calories và tăng cường vận động."
+    )
+
+# So sánh calories bữa ăn với nhu cầu trong ngày
+if remaining > 0:
+    st.success(
+        f"🍽️ Sau bữa ăn này bạn còn khoảng {remaining:.0f} kcal có thể nạp thêm trong hôm nay."
+    )
+
+else:
+    st.warning(
+        f"⚠️ Bạn đã vượt khoảng {abs(remaining):.0f} kcal so với nhu cầu khuyến nghị trong ngày."
+    )
