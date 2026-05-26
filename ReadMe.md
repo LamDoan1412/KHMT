@@ -123,19 +123,6 @@ python -m venv .venv
 
 ---
 
-## Cài thư viện
-
-```bash
-pip install -r requirements.txt
-```
-
-Hoặc:
-
-```bash
-pip install streamlit pandas joblib
-```
-
----
 
 # Chạy chương trình
 
