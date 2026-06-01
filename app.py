@@ -64,7 +64,7 @@ st.markdown("""
 
 @st.cache_resource
 def load_model():
-    return joblib.load("model_weights.pkl")
+    return joblib.load("vietnamese_popular_foods.pkl")
 
 try:
     weights = load_model()
