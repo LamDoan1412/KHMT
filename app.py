@@ -70,7 +70,7 @@ try:
     weights = load_model()
     food_options = sorted(list(weights.keys()))
 except:
-    st.error("Không tìm thấy file model_weights.pkl. Hãy chạy train.py trước.")
+    st.error("Không tìm thấy file vietnamese_popular_foods.pkl Hãy chạy train.py trước.")
     st.stop()
 
 def calculate_bmi(weight, height_cm):

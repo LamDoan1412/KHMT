@@ -1,192 +1,54 @@
-import streamlit as st
+import pandas as pd
+import re
 import joblib
-
-# ===============================
-# Cấu hình giao diện
-# ===============================
-st.set_page_config(
-    page_title="Tính Calo & BMI",
-    layout="centered"
-)
-
-# ===============================
-# Load model
-# ===============================
-@st.cache_resource
-def load_model():
-    return joblib.load("vietnamese_popular_foods.pkl")
+from sklearn.model_selection import train_test_split
 
 
-try:
-    weights = load_model()
-    food_options = sorted(list(weights.keys()))
-except:
-    st.error("Không tìm thấy file model_weights.pkl. Hãy chạy train.py trước.")
-    st.stop()
+def train_model():
+    print("=== Khởi động tiến trình xử lý dữ liệu và huấn luyện mô hình ===")
+
+    # Đọc tệp dữ liệu sạch đã được nội địa hóa tiếng Việt
+    try:
+        df = pd.read_csv('Food_Calories_Vietnamese.csv')
+        print(f"-> Nạp thành công tệp dữ liệu thô: {len(df)} dòng bản ghi.")
+    except FileNotFoundError:
+        print("Lỗi hệ thống: Không tìm thấy tệp 'Food_Calories_Vietnamese.csv'. Hãy kiểm tra lại đường dẫn.")
+        return
+
+    def extract_num(text, pattern):
+        match = re.search(pattern, str(text))
+        return float(match.group(1)) if match else None
+
+    # Tạo trường Khối lượng (gram) và Số calo thực tế
+    df['Weight_g'] = df['Serving'].apply(lambda x: extract_num(x, r'\((\d+\.?\d*)\s*g\)'))
+    df['Calories_val'] = df['Calories'].apply(lambda x: extract_num(x, r'(\d+)'))
+
+    #  Tiến hành làm sạch dữ liệu, lọc bỏ giá trị khuyết thiếu hoặc sai lỗi
+    df = df.dropna(subset=['Weight_g', 'Calories_val'])
+    df = df[df['Weight_g'] > 0]
+    print(f"-> Hoàn tất làm sạch dữ liệu. Số lượng mẫu đạt chuẩn giữ lại: {len(df)} dòng.")
+
+    # Thực hiện chia tách dữ liệu thực nghiệm theo tỷ lệ chuẩn 80% huấn luyện và 20% kiểm thử
+    train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+    print(f"   Quy mô Tập huấn luyện (Training Set - 80%): {len(train_df)} mẫu.")
+    print(f"   Quy mô Tập kiểm thử (Testing Set - 20%): {len(test_df)} mẫu.")
+
+    # 4. Thực hiện thuật toán học trên Tập huấn luyện (80%) để xác định các trọng số
+    # Tính toán lượng calo trên mỗi 1 gram của từng loại thực phẩm
+    train_df['Cal_per_Gram'] = train_df['Calories_val'] / train_df['Weight_g']
+
+    # Cấu trúc hóa kết quả thu được thành ma trận trọng số hồi quy dạng từ điển
+    model_weights = pd.Series(train_df.Cal_per_Gram.values, index=train_df.Food_VN).to_dict()
+
+    # 5. Đóng gói mô hình dưới dạng tệp tin bằng Joblib
+    # Xuất ra tệp tin đồng bộ với file cấu hình app.py
+    output_filename = 'vietnamese_popular_foods.pkl'
+    joblib.dump(model_weights, output_filename)
+
+    print(f"\n=== TIẾN TRÌNH HOÀN TẤT ===")
+    print(f"Mô hình hồi quy đa biến đã được đóng gói thành công tại tệp: '{output_filename}'")
+    print(f"Hệ thống đã lưu trữ sẵn sàng bộ hệ số năng lượng của {len(model_weights)} loại thực phẩm.")
 
 
-# ===============================
-# Hàm tính BMI
-# ===============================
-def calculate_bmi(weight, height_cm):
-    height_m = height_cm / 100
-    bmi = weight / (height_m ** 2)
-    return bmi
-
-
-# ===============================
-# Hàm tính BMR
-# ===============================
-def calculate_bmr(gender, weight, height_cm, age):
-    if gender == "Nam":
-        bmr = 10 * weight + 6.25 * height_cm - 5 * age + 5
-    else:
-        bmr = 10 * weight + 6.25 * height_cm - 5 * age - 161
-    return bmr
-
-
-# ===============================
-# Giao diện
-# ===============================
-st.title("🍱 Tính toán calo cho bữa ăn")
-
-st.header("Thông tin cơ thể")
-
-gender = st.selectbox(
-    "Giới tính",
-    ["Nam", "Nữ"]
-)
-
-age = st.number_input(
-    "Tuổi",
-    min_value=1,
-    max_value=100,
-    value=20
-)
-
-height = st.number_input(
-    "Chiều cao (cm)",
-    min_value=50.0,
-    max_value=250.0,
-    value=170.0
-)
-
-body_weight = st.number_input(
-    "Cân nặng (kg)",
-    min_value=10.0,
-    max_value=300.0,
-    value=60.0
-)
-
-# ===============================
-# Tính BMI + BMR
-# ===============================
-bmi = calculate_bmi(body_weight, height)
-bmr = calculate_bmr(gender, body_weight, height, age)
-
-st.markdown(f"### BMI của bạn: `{bmi:.2f}`")
-
-if bmi < 18.5:
-    st.info("Bạn đang thiếu cân.")
-elif bmi < 25:
-    st.success("BMI bình thường.")
-elif bmi < 30:
-    st.warning("Bạn đang thừa cân.")
-else:
-    st.error("Bạn đang béo phì.")
-
-st.markdown(f"### Nhu cầu calo gợi ý mỗi ngày: `{bmr:.0f} kcal`")
-
-st.divider()
-
-
-# ===============================
-# Nhập món ăn
-# ===============================
-st.header("Nhập món ăn")
-
-if "rows" not in st.session_state:
-    st.session_state.rows = 1
-
-
-current_entries = []
-
-for i in range(st.session_state.rows):
-    col1, col2 = st.columns([3, 1])
-
-    with col1:
-        food = st.selectbox(
-            f"Thành phần {i+1}",
-            food_options,
-            key=f"food_{i}"
-        )
-
-    with col2:
-        gram = st.number_input(
-            f"Gram {i+1}",
-            min_value=0.0,
-            step=1.0,
-            key=f"gram_{i}"
-        )
-
-    current_entries.append((food, gram))
-
-
-if st.button("➕ Thêm thành phần"):
-    st.session_state.rows += 1
-    st.rerun()
-
-st.divider()
-
-
-# ===============================
-# Tính calo món ăn
-# ===============================
-if st.button("TÍNH TOÁN", type="primary"):
-
-    total_calories = 0
-
-    st.subheader("Chi tiết món ăn")
-
-    for food, gram in current_entries:
-        if gram > 0:
-            cal = weights[food] * gram
-            total_calories += cal
-
-            st.write(
-                f"• **{food}** ({gram}g): {cal:.1f} kcal"
-            )
-
-    st.markdown(
-        f"## Tổng calo bữa ăn: `{total_calories:.2f} kcal`"
-    )
-
-    st.divider()
-
-    st.subheader("So sánh với nhu cầu cơ thể")
-
-    percent = (total_calories / bmr) * 100
-
-    st.write(
-        f"Bữa ăn này tương đương **{percent:.1f}%** nhu cầu calo/ngày của bạn."
-    )
-
-    if percent < 20:
-        st.info(
-            "🟢 Bữa ăn nhẹ, lượng calo thấp."
-        )
-
-    elif percent < 35:
-        st.success(
-            "🔵 Lượng calo phù hợp cho một bữa ăn."
-        )
-
-    elif percent < 50:
-        st.warning(
-            "🟡 Bữa ăn hơi nhiều calo."
-        )
-
-    else:
-        st.error(
-            "🔴 Bữa ăn khá cao calo, nên cân nhắc điều chỉnh khẩu phần."
-        )
+if __name__ == "_main_":
+    train_model()
