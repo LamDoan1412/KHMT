@@ -1,4 +1,4 @@
-Food,Serving,Calories
+﻿Food,Serving,Calories
 Artichoke,1 artichoke (128 g),60 cal
 Arugula,1 leaf (2 g),1 cal
 Asparagus,1 spear (12 g),2 cal
@@ -237,39 +237,6 @@ Wheat Semolina,1 cup (167 g),601 cal
 Wheat Starch,1 cup (110 g),386 cal
 Whole Grain Wheat,1 cup (120 g),407 cal
 Wholegrain Oat,1 cup (80 g),300 cal
-Almond Oil,1 tbsp (14 ml),123 cal
-Apricot Kernel Oil,1 tbsp (14 ml),124 cal
-Argan Oil,1 tbsp (14 ml),125 cal
-Avocado Oil,1 tbsp (14 ml),120 cal
-Babassu Oil,1 tbsp (14 ml),124 cal
-Canola Oil,1 tbsp (14 ml),124 cal
-Coconut Oil,1 tbsp (14 ml),120 cal
-Corn Oil,1 tbsp (15 ml),120 cal
-Cottonseed Oil,1 tbsp (14 ml),123 cal
-Flaxseed Oil,1 tbsp (14 ml),124 cal
-Grape Seed Oil,1 tbsp (14 ml),124 cal
-Hazelnut Oil,1 tbsp (14 ml),124 cal
-Linseed Oil,1 tbsp (14 ml),117 cal
-Menhaden Oil,1 tbsp (14 ml),128 cal
-Mustard Oil,1 tbsp (14 ml),124 cal
-Oat Oil,1 tbsp (14 ml),124 cal
-Olive Oil,1 tbsp (15 ml),120 cal
-Palm Kernel Oil,1 tbsp (14 ml),123 cal
-Palm Oil,1 tbsp (14 ml),123 cal
-Peanut Oil,1 tbsp (14 ml),120 cal
-Poppy Seed Oil,1 tbsp (14 ml),124 cal
-Pumpkin Seed Oil,1 tbsp (14 ml),123 cal
-Rice Bran Oil,1 tbsp (14 ml),124 cal
-Safflower Oil,1 tbsp (14 ml),120 cal
-Salmon Oil,1 tbsp (14 ml),128 cal
-Sesame Oil,1 tbsp (14 ml),124 cal
-Shea Oil,1 tbsp (14 ml),124 cal
-Soy Oil,1 tbsp (14 ml),123 cal
-Sunflower Oil,1 tbsp (14 ml),124 cal
-Tomato Seed Oil,1 tbsp (14 ml),124 cal
-Vegetable Oil,1 tbsp (15 ml),120 cal
-Walnut Oil,1 tbsp (14 ml),124 cal
-Wheat Germ Oil,1 tbsp (14 ml),130 cal
 Alphabet Soup,1 cup (248 g),62 cal
 Bean Stew,1 cup (252 g),335 cal
 Beef Bouillon,1 cup (240 g),7 cal
