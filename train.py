@@ -13,6 +13,9 @@ def train_model():
     try:
         df = pd.read_csv('Food and Calories - Sheet1.csv')
         print(f"-> Nạp thành công tệp dữ liệu thô: {len(df)} dòng bản ghi.")
+        df = df.rename(columns={
+            'Food': 'Food_VN'
+        })
     except FileNotFoundError:
         print("Lỗi hệ thống: Không tìm thấy tệp 'Food and Calories.csv'. Hãy kiểm tra lại đường dẫn.")
         return
