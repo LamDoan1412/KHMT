@@ -4,6 +4,14 @@ import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 import numpy as np
+import sys
+
+# Thiết lập encoding UTF-8 cho Windows Console
+if sys.platform.startswith('win'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except AttributeError:
+        pass
 
 
 def train_model():
@@ -11,14 +19,17 @@ def train_model():
 
     # Đọc tệp dữ liệu sạch đã được nội địa hóa tiếng Việt
     try:
-        df = pd.read_csv('Food and Calories - Sheet1.csv')
-        print(f"-> Nạp thành công tệp dữ liệu thô: {len(df)} dòng bản ghi.")
-        df = df.rename(columns={
-            'Food': 'Food_VN'
-        })
+        df = pd.read_csv('Food_Calories_Vietnamese.csv')
+        print(f"-> Nạp thành công tệp dữ liệu Việt hóa: {len(df)} dòng bản ghi.")
     except FileNotFoundError:
-        print("Lỗi hệ thống: Không tìm thấy tệp 'Food and Calories.csv'. Hãy kiểm tra lại đường dẫn.")
-        return
+        print("Lỗi hệ thống: Không tìm thấy tệp 'Food_Calories_Vietnamese.csv'. Hãy kiểm tra lại hoặc chạy translate.py trước.")
+        try:
+            print("Đang thử nạp tệp thô tiếng Anh làm phương án dự phòng...")
+            df = pd.read_csv('Food and Calories - Sheet1.csv')
+            df = df.rename(columns={'Food': 'Food_VN'})
+        except FileNotFoundError:
+            print("Lỗi hệ thống: Không tìm thấy bất kỳ tệp dữ liệu nào.")
+            return
 
     def extract_num(text, pattern):
         match = re.search(pattern, str(text))
@@ -29,7 +40,7 @@ def train_model():
     df['Calories_val'] = df['Calories'].apply(lambda x: extract_num(x, r'(\d+)'))
 
     # Tiến hành làm sạch dữ liệu, lọc bỏ giá trị khuyết thiếu hoặc sai lỗi
-    df = df.dropna(subset=['Weight_g', 'Calories_val'])
+    df = df.dropna(subset=['Weight_g', 'Calories_val', 'Food_VN'])
     df = df[df['Weight_g'] > 0]
     print(f"-> Hoàn tất làm sạch dữ liệu. Số lượng mẫu đạt chuẩn giữ lại: {len(df)} dòng.")
 
@@ -62,11 +73,11 @@ def train_model():
 
     # 5. Đóng gói mô hình dưới dạng tệp tin bằng Joblib
     # Xuất ra tệp tin đồng bộ với file cấu hình app.py
-    output_filename = 'vietnamese_popular_foods.pkl'
+    output_filename = 'model_weights.pkl'
     joblib.dump(model_weights, output_filename)
 
     print(f"\n=== TIẾN TRÌNH HOÀN TẤT ===")
-    print(f"Mô hình hồi quy đa biến đã được đóng gói thành công tại tệp: '{output_filename}'")
+    print(f"Mô hình hồi quy đã được đóng gói thành công tại tệp: '{output_filename}'")
     print(f"Hệ thống đã lưu trữ sẵn sàng bộ hệ số năng lượng của {len(model_weights)} loại thực phẩm.")
 
 

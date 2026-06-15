@@ -1,4 +1,12 @@
 import pickle
+import sys
+
+# Thiết lập encoding UTF-8 cho Windows Console
+if sys.platform.startswith('win'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except AttributeError:
+        pass
 
 # 1. Định nghĩa danh sách các món ăn Việt Nam & món ăn cực kỳ phổ biến tại Việt Nam từ dữ liệu gốc
 vietnamese_foods = [
@@ -44,25 +52,27 @@ try:
     with open(file_in, 'rb') as f:
         data = pickle.load(f)
 
+    # Đưa danh sách thực phẩm Việt Nam về chữ thường để khớp không phân biệt hoa thường
+    vietnamese_foods_lower = {f.lower().strip() for f in vietnamese_foods}
+
     # 3. Kiểm tra cấu trúc của dữ liệu bên trong để áp dụng thuật toán lọc chính xác
     if isinstance(data, dict):
         # Nếu là Dictionary (Từ điển chứa dạng Tên_Món: Trọng_Số)
-        filtered_data = {k: v for k, v in data.items() if k in vietnamese_foods}
+        filtered_data = {k: v for k, v in data.items() if k.lower().strip() in vietnamese_foods_lower}
 
     elif isinstance(data, list):
         # Nếu là List (Danh sách chứa các phần tử món ăn hoặc tuple)
         if len(data) > 0 and isinstance(data[0], tuple):
             # Dạng danh sách các tuple [(Tên_Món, Trọng_Số), ...]
-            filtered_data = [item for item in data if item[0] in vietnamese_foods]
+            filtered_data = [item for item in data if item[0].lower().strip() in vietnamese_foods_lower]
         else:
             # Dạng danh sách thuần tên món ăn ["Món 1", "Món 2", ...]
-            filtered_data = [item for item in data if item in vietnamese_foods]
+            filtered_data = [item for item in data if item.lower().strip() in vietnamese_foods_lower]
 
     else:
         # Trường hợp dữ liệu là mảng đặc biệt (Ví dụ Numpy array hoặc Object phức tạp)
         print("Cấu trúc dữ liệu lạ. Hệ thống sẽ thử lọc ép kiểu theo dạng chuỗi văn bản...")
         filtered_data = {}
-        # Bạn có thể cần can thiệp sâu hơn dựa trên thuộc tính cụ thể của mô hình nếu dòng này chạy
 
     # 4. Ghi dữ liệu đã lọc thành file .pkl mới
     with open(file_out, 'wb') as f:
